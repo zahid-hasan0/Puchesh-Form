@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
+        <!-- Bootstrap CDN link  -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    
+</head>
+<style>
           body{
         background-color: rgb(176, 237, 183);
     }
@@ -23,7 +28,6 @@
         font-weight: bold;
     }
     </style>
-</head>
 <body>
     <div class="card form-container">
      <h1 style="color: blue;text-align: center;">Login Form</h1>
@@ -46,6 +50,99 @@
 </form>
 </div>
 
+
+<!-- <script type="module" >
+
+ import {auth,db,storage } from '/Js/storage.js'; 
+ import{signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+
+ document.getElementById("submit").addEventListener("click",function loginuser(e){
+                e.preventDefault();
+
+    const email=document.getElementById("email").value;
+    const password=document.getElementById("password").value;
+
+
+    console.log(email);
+    console.log(password);
+
+ });
+
+
+
+
+</script> -->
     
+
+<script type="module">
+
+import { auth, db } from "/Js/storage.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+document.getElementById("submit").addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+        alert("Email & Password must not be empty!");
+        return;4
+    }
+
+    try {
+       
+        const userInformation = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userInformation.user.uid;
+
+       
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            alert("User data not found in Firestore!");
+            return;
+        }
+
+        const userData = userSnap.data();
+        console.log("User Data:", userData);
+
+        alert("Login Successful!");
+
+        
+        if (userData.role === "admin") {
+            window.location.href = "/admin/dashboard.html";
+        }
+        else if (userData.role === "leader") {
+            window.location.href = "/leader/home.html";
+        }
+        else {
+            window.location.href = "/user/home.html";
+        }
+
+    } catch (error) {
+        console.error("Login Error:", error);
+
+        if (error.code === "auth/invalid-email") {
+            alert("Invalid email format!");
+        }
+        else if (error.code === "auth/user-not-found") {
+            alert("User not found! Please register first.");
+        }
+        else if (error.code === "auth/wrong-password") {
+            alert("Wrong password!");
+        }
+        else {
+            alert("Login failed: " + error.message);
+        }
+    }
+
+});
+
+</script>
+
+
 </body>
 </html>
